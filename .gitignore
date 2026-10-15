@@ -1,0 +1,16 @@
+# Godot 4.x engine
+.godot/
+
+# Godot-specific exports and credentials
+*.translation
+export_presets.cfg
+
+.mono/
+*.csproj
+*.sln
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+godot.log
