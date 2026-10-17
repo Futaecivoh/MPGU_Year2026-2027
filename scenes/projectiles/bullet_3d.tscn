@@ -11,11 +11,11 @@ emission_energy_multiplier = 2.5
 
 [sub_resource type="SphereMesh" id="SphereMesh_bullet"]
 material = SubResource("StandardMaterial3D_bullet")
-radius = 0.16
-height = 0.32
+radius = 0.22
+height = 0.44
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_hitbox"]
-radius = 0.2
+radius = 0.26
 
 [node name="Bullet3D" type="Node3D"]
 script = ExtResource("1_bullet")
@@ -27,8 +27,8 @@ mesh = SubResource("SphereMesh_bullet")
 collision_layer = 8
 collision_mask = 65
 script = ExtResource("2_hitbox")
-damage = 20.0
-knockback_force = 5.0
+damage = 75.0
+knockback_force = 14.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="HitboxComponent"]
 shape = SubResource("SphereShape3D_hitbox")

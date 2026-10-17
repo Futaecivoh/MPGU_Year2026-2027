@@ -6,6 +6,8 @@ extends Node
 signal player_spawned(player: Node3D)
 signal player_health_changed(current_hp: float, max_hp: float)
 signal player_armor_changed(current_armor: float, max_armor: float)
+signal player_ammo_changed(current_ammo: int, max_ammo: int)
+signal player_out_of_ammo()
 signal player_died()
 signal player_dashed(cooldown: float)
 

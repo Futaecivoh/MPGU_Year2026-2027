@@ -30,6 +30,9 @@ extends CharacterBody3D
 @onready var health_component: HealthComponent = $HealthComponent
 @onready var hurtbox_component: HurtboxComponent = $HurtboxComponent
 
+var current_ammo: int = 5
+var max_ammo: int = 5
+
 var _aim_direction: Vector3 = Vector3.FORWARD
 var _knockback_velocity: Vector3 = Vector3.ZERO
 var _is_dashing: bool = false
@@ -51,6 +54,10 @@ func _ready() -> void:
 		melee_hitbox.damage = melee_weapon.damage
 		melee_hitbox.knockback_force = melee_weapon.knockback_force
 
+	if ranged_weapon != null:
+		max_ammo = ranged_weapon.max_ammo
+	current_ammo = max_ammo
+
 	health_component.health_changed.connect(_on_health_changed)
 	health_component.armor_changed.connect(_on_armor_changed)
 	health_component.damaged.connect(_on_damaged)
@@ -60,6 +67,7 @@ func _ready() -> void:
 	EventBus.player_spawned.emit(self)
 	EventBus.player_health_changed.emit(health_component.current_health, health_component.max_health)
 	EventBus.player_armor_changed.emit(health_component.current_armor, health_component.max_armor)
+	EventBus.player_ammo_changed.emit(current_ammo, max_ammo)
 
 
 func _physics_process(delta: float) -> void:
@@ -101,7 +109,7 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_pressed("attack_melee") and _melee_cooldown_timer <= 0.0 and not _is_dashing:
 		_perform_melee_attack()
 
-	if Input.is_action_pressed("attack_ranged") and _ranged_cooldown_timer <= 0.0 and not _is_dashing:
+	if Input.is_action_just_pressed("attack_ranged") and _ranged_cooldown_timer <= 0.0 and not _is_dashing:
 		_perform_ranged_attack()
 
 
@@ -201,18 +209,31 @@ func _perform_ranged_attack() -> void:
 	if bullet_scene == null:
 		return
 
-	var cooldown: float = ranged_weapon.cooldown if ranged_weapon else 0.45
-	var dmg: float = ranged_weapon.damage if ranged_weapon else 22.0
-	var kb: float = ranged_weapon.knockback_force if ranged_weapon else 5.0
-	var spd: float = ranged_weapon.projectile_speed if ranged_weapon else 24.0
+	if current_ammo <= 0:
+		EventBus.player_out_of_ammo.emit()
+		return
+
+	var cooldown: float = ranged_weapon.cooldown if ranged_weapon else 0.5
+	var dmg: float = ranged_weapon.damage if ranged_weapon else 75.0
+	var kb: float = ranged_weapon.knockback_force if ranged_weapon else 14.0
+	var spd: float = ranged_weapon.projectile_speed if ranged_weapon else 28.0
 	var life: float = ranged_weapon.projectile_lifetime if ranged_weapon else 1.5
 
+	current_ammo -= 1
 	_ranged_cooldown_timer = cooldown
+	EventBus.player_ammo_changed.emit(current_ammo, max_ammo)
 
 	var bullet := bullet_scene.instantiate() as Bullet3D
 	get_tree().current_scene.add_child(bullet)
 	bullet.global_position = muzzle_marker.global_position
 	bullet.setup(_aim_direction, dmg, kb, spd, life, self)
+
+
+func add_ammo(amount: int) -> void:
+	if amount <= 0:
+		return
+	current_ammo = clampi(current_ammo + amount, 0, max_ammo)
+	EventBus.player_ammo_changed.emit(current_ammo, max_ammo)
 
 
 func _on_health_changed(current_hp: float, max_hp: float) -> void:
