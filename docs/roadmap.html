@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Дорожная карта — MPGU Pirate Roguelike</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #182028;
+      --surface-2: #1f2933;
+      --border: #2d3a47;
+      --text: #e6edf3;
+      --text-muted: #8b9bb0;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.14);
+      --status-done: #22c55e;
+      --status-work: #f59e0b;
+      --status-todo: #38bdf8;
+      --status-backlog: #64748b;
+      --today: #ef4444;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      --radius: 10px;
+    }
+
+    html[data-theme="light"] {
+      --bg: #f4f6f9;
+      --surface: #ffffff;
+      --surface-2: #f8fafc;
+      --border: #dbe2ea;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --accent: #0284c7;
+      --accent-soft: rgba(2, 132, 199, 0.1);
+      --status-done: #16a34a;
+      --status-work: #d97706;
+      --status-todo: #0284c7;
+      --status-backlog: #64748b;
+      --today: #dc2626;
+      --shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 20px 24px 48px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .title-block h1 {
+      margin: 0 0 4px;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .title-block p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .header-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .segmented {
+      display: inline-flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .segmented button,
+    .btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .segmented button.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn:hover {
+      border-color: var(--accent);
+    }
+
+    /* Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    /* Filters */
+    .filters-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      margin-bottom: 18px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 150px;
+      flex: 1 1 160px;
+    }
+
+    .filter-group label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .filter-group select,
+    .filter-group input {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .filter-group select:focus,
+    .filter-group input:focus {
+      border-color: var(--accent);
+    }
+
+    /* Panels */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 18px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+
+    .panel-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    /* Gantt */
+    .gantt-scroll {
+      overflow-x: auto;
+    }
+
+    .gantt-grid {
+      min-width: 900px;
+    }
+
+    .gantt-head,
+    .gantt-row {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .gantt-head {
+      background: var(--surface-2);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .gantt-label-cell {
+      padding: 10px 14px;
+      border-right: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .gantt-timeline-head {
+      display: grid;
+      position: relative;
+    }
+
+    .gantt-day-head {
+      text-align: center;
+      padding: 8px 2px;
+      border-right: 1px solid var(--border);
+      font-size: 11px;
+    }
+
+    .gantt-day-head.weekend {
+      background: rgba(148, 163, 184, 0.06);
+    }
+
+    .gantt-milestone-row {
+      background: var(--accent-soft);
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .gantt-row {
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+
+    .gantt-row:hover {
+      background: rgba(56, 189, 248, 0.06);
+    }
+
+    .gantt-row.selected {
+      background: var(--accent-soft);
+    }
+
+    .task-id {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .task-name {
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .gantt-track {
+      position: relative;
+      display: grid;
+      align-items: center;
+      min-height: 42px;
+    }
+
+    .gantt-grid-cell {
+      height: 100%;
+      border-right: 1px solid var(--border);
+    }
+
+    .gantt-grid-cell.weekend {
+      background: rgba(148, 163, 184, 0.04);
+    }
+
+    .gantt-bar {
+      position: absolute;
+      height: 24px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #fff;
+      overflow: hidden;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+      z-index: 2;
+    }
+
+    .gantt-bar-progress {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.22);
+      pointer-events: none;
+    }
+
+    .gantt-bar-text {
+      position: relative;
+      z-index: 1;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    }
+
+    .today-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--today);
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* Table */
+    .table-scroll {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--surface-2);
+      color: var(--text-muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 600;
+    }
+
+    tbody tr {
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+
+    tbody tr:hover {
+      background: rgba(56, 189, 248, 0.06);
+    }
+
+    tbody tr.selected {
+      background: var(--accent-soft);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 110px;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 7px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    /* Details card */
+    .details-card {
+      background: var(--surface);
+      border: 1px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      box-shadow: var(--shadow);
+      display: none;
+    }
+
+    .details-card.open {
+      display: block;
+    }
+
+    .details-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .details-title {
+      margin: 4px 0 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .details-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      padding: 12px;
+      background: var(--surface-2);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+
+    .details-meta span {
+      display: block;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .dod-box {
+      font-size: 13px;
+      padding: 10px 12px;
+      border-left: 3px solid var(--accent);
+      background: var(--surface-2);
+      border-radius: 0 6px 6px 0;
+    }
+
+    .empty-state {
+      padding: 28px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="title-block">
+        <h1>Дорожная карта — MPGU Pirate Roguelike</h1>
+        <p>Интерактивная диаграмма Ганта, статусы задач и критерии готовности (DoD)</p>
+      </div>
+      <div class="header-controls">
+        <div class="segmented" id="viewSwitcher">
+          <button type="button" data-view="both" class="active">Всё вместе</button>
+          <button type="button" data-view="gantt">Только график</button>
+          <button type="button" data-view="table">Только таблица</button>
+        </div>
+        <button type="button" class="btn" id="themeToggle">Светлая тема</button>
+      </div>
+    </header>
+
+    <section class="stats-grid" id="statsGrid"></section>
+
+    <section class="filters-bar">
+      <div class="filter-group">
+        <label for="filterMilestone">Веха</label>
+        <select id="filterMilestone">
+          <option value="all">Все вехи</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="filterRole">Роль</label>
+        <select id="filterRole">
+          <option value="all">Все роли</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="filterStatus">Статус</label>
+        <select id="filterStatus">
+          <option value="all">Все статусы</option>
+          <option value="В работе">В работе</option>
+          <option value="К выполнению">К выполнению</option>
+          <option value="Бэклог">Бэклог</option>
+          <option value="Готово">Готово</option>
+        </select>
+      </div>
+      <div class="filter-group" style="flex: 2 1 220px;">
+        <label for="filterSearch">Поиск</label>
+        <input id="filterSearch" type="text" placeholder="Поиск по ID, названию или DoD..." />
+      </div>
+      <div style="align-self: flex-end;">
+        <button type="button" class="btn" id="resetFilters">Сбросить</button>
+      </div>
+    </section>
+
+    <section class="panel" id="ganttPanel">
+      <div class="panel-header">
+        <div class="panel-title">Диаграмма Ганта</div>
+        <div class="legend">
+          <span class="legend-item"><span class="dot" style="background: var(--status-work)"></span>В работе</span>
+          <span class="legend-item"><span class="dot" style="background: var(--status-todo)"></span>К выполнению</span>
+          <span class="legend-item"><span class="dot" style="background: var(--status-backlog)"></span>Бэклог</span>
+          <span class="legend-item"><span class="dot" style="background: var(--status-done)"></span>Готово</span>
+        </div>
+      </div>
+      <div class="gantt-scroll">
+        <div class="gantt-grid" id="ganttContainer"></div>
+      </div>
+    </section>
+
+    <section class="panel" id="tablePanel">
+      <div class="panel-header">
+        <div class="panel-title">Таблица задач</div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Веха</th>
+              <th>Задача</th>
+              <th>Ответственный</th>
+              <th>Старт</th>
+              <th>Дедлайн</th>
+              <th>Статус</th>
+              <th>Прогресс</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="details-card" id="detailsCard">
+      <div class="details-top">
+        <div>
+          <span class="task-id" id="detailId"></span>
+          <h2 class="details-title" id="detailTitle"></h2>
+        </div>
+        <button type="button" class="btn" id="closeDetails">Закрыть</button>
+      </div>
+      <div class="details-meta">
+        <div><span>Веха</span><strong id="detailMilestone"></strong></div>
+        <div><span>Ответственный</span><strong id="detailRole"></strong></div>
+        <div><span>Период</span><strong id="detailDates"></strong></div>
+        <div><span>Длительность</span><strong id="detailDuration"></strong></div>
+        <div><span>Статус и прогресс</span><strong id="detailStatus"></strong></div>
+      </div>
+      <div class="dod-box">
+        <strong>Критерий готовности (DoD):</strong>
+        <div id="detailDod" style="margin-top: 4px;"></div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const ROADMAP_DATA = {
+      milestones: [
+        { id: "M1", title: "M1: База и концепт (до 30.11)" },
+        { id: "M2", title: "M2: Аналитика и срез (01.12–14.12)" }
+      ],
+      tasks: [
+        {
+          id: "M1-01",
+          milestone: "M1",
+          title: "Введение к проекту и разбор ТЗ",
+          role: "Нарратив / Текст",
+          start: "2026-11-25",
+          end: "2026-11-28",
+          status: "В работе",
+          progress: 30,
+          dod: "Готов раздел введения: цель, жанр, УТП, целевая аудитория"
+        },
+        {
+          id: "M1-02",
+          milestone: "M1",
+          title: "Сюжет, лор и сеттинг пиратского мира",
+          role: "Нарратив / Текст",
+          start: "2026-11-26",
+          end: "2026-11-30",
+          status: "К выполнению",
+          progress: 10,
+          dod: "Завязка, мотивация капитана, сеттинг островов/подземелий и врагов"
+        },
+        {
+          id: "M1-03",
+          milestone: "M1",
+          title: "Программирование ядра игры",
+          role: "Программист",
+          start: "2026-11-25",
+          end: "2026-11-30",
+          status: "В работе",
+          progress: 50,
+          dod: "Рабочий прототип: перемещение, боёвка (сабля + пистоль), 2 валюты, базовая карта"
+        },
+        {
+          id: "M1-04",
+          milestone: "M1",
+          title: "Единый стиль (мудборд) + HUD и индикаторы",
+          role: "Дизайнер",
+          start: "2026-11-25",
+          end: "2026-11-27",
+          status: "В работе",
+          progress: 10,
+          dod: "Зафиксирована палитра/стиль, готовы макеты HUD (HP, 5 пуль, 2 валюты, dash)"
+        },
+        {
+          id: "M1-05",
+          milestone: "M1",
+          title: "Схема древовидной карты",
+          role: "Дизайнер",
+          start: "2026-11-27",
+          end: "2026-11-29",
+          status: "К выполнению",
+          progress: 0,
+          dod: "Прототип экрана карты переходов и иконки узлов (бой, магазин, босс, сундук)"
+        },
+        {
+          id: "M1-06",
+          milestone: "M1",
+          title: "Первые 3D-модели пространства (палуба/арена)",
+          role: "Дизайнер",
+          start: "2026-11-28",
+          end: "2026-11-30",
+          status: "К выполнению",
+          progress: 0,
+          dod: "Первые модели палубы корабля-хаба и укрытий для арены (.glb/.tscn)"
+        },
+        {
+          id: "M2-01",
+          milestone: "M2",
+          title: "Расчёт рынка TAM / SAM / SOM",
+          role: "Аналитика / Команда",
+          start: "2026-12-01",
+          end: "2026-12-06",
+          status: "Бэклог",
+          progress: 0,
+          dod: "Расчёты с источниками по рынку инди-рогаликов (ПК/Steam)"
+        },
+        {
+          id: "M2-02",
+          milestone: "M2",
+          title: "Прогноз метрик DAU / WAU / MAU и Retention",
+          role: "Аналитика / Команда",
+          start: "2026-12-04",
+          end: "2026-12-10",
+          status: "Бэклог",
+          progress: 0,
+          dod: "Прогнозная модель вовлечённости и Retention (D1/D7/D30)"
+        },
+        {
+          id: "M2-03",
+          milestone: "M2",
+          title: "Интеграция ассетов, UI и первый плейтест",
+          role: "Программист + Дизайнер",
+          start: "2026-12-01",
+          end: "2026-12-12",
+          status: "Бэклог",
+          progress: 0,
+          dod: "Вертикальный срез: корабль-хаб -> арена -> бой -> награда"
+        }
+      ]
+    };
+
+    const STATUS_COLORS = {
+      "Готово": "var(--status-done)",
+      "В работе": "var(--status-work)",
+      "К выполнению": "var(--status-todo)",
+      "Бэклог": "var(--status-backlog)"
+    };
+
+    let selectedTaskId = null;
+
+    const elMilestone = document.getElementById("filterMilestone");
+    const elRole = document.getElementById("filterRole");
+    const elStatus = document.getElementById("filterStatus");
+    const elSearch = document.getElementById("filterSearch");
+    const elReset = document.getElementById("resetFilters");
+    const elGantt = document.getElementById("ganttContainer");
+    const elTableBody = document.getElementById("tableBody");
+    const elStats = document.getElementById("statsGrid");
+    const elDetails = document.getElementById("detailsCard");
+    const elThemeToggle = document.getElementById("themeToggle");
+
+    function parseDate(str) {
+      const [y, m, d] = str.split("-").map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    function formatShort(date) {
+      const dd = String(date.getDate()).padStart(2, "0");
+      const mm = String(date.getMonth() + 1).padStart(2, "0");
+      return `${dd}.${mm}`;
+    }
+
+    function diffDays(a, b) {
+      return Math.round((b - a) / 86400000);
+    }
+
+    function initFilters() {
+      ROADMAP_DATA.milestones.forEach(m => {
+        const opt = document.createElement("option");
+        opt.value = m.id;
+        opt.textContent = m.title;
+        elMilestone.appendChild(opt);
+      });
+
+      const roles = Array.from(new Set(ROADMAP_DATA.tasks.map(t => t.role)));
+      roles.forEach(r => {
+        const opt = document.createElement("option");
+        opt.value = r;
+        opt.textContent = r;
+        elRole.appendChild(opt);
+      });
+    }
+
+    function getFilteredTasks() {
+      const ms = elMilestone.value;
+      const role = elRole.value;
+      const status = elStatus.value;
+      const q = elSearch.value.trim().toLowerCase();
+
+      return ROADMAP_DATA.tasks.filter(t => {
+        if (ms !== "all" && t.milestone !== ms) return false;
+        if (role !== "all" && t.role !== role) return false;
+        if (status !== "all" && t.status !== status) return false;
+        if (q) {
+          const hay = `${t.id} ${t.title} ${t.role} ${t.dod}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderStats(tasks) {
+      const total = tasks.length;
+      const inWork = tasks.filter(t => t.status === "В работе").length;
+      const done = tasks.filter(t => t.status === "Готово").length;
+      const avg = total ? Math.round(tasks.reduce((acc, t) => acc + t.progress, 0) / total) : 0;
+
+      elStats.innerHTML = `
+        <div class="stat-card"><div class="stat-label">Задач в выборке</div><div class="stat-value">${total}</div></div>
+        <div class="stat-card"><div class="stat-label">В работе</div><div class="stat-value">${inWork}</div></div>
+        <div class="stat-card"><div class="stat-label">Готово</div><div class="stat-value">${done}</div></div>
+        <div class="stat-card"><div class="stat-label">Средний прогресс</div><div class="stat-value">${avg}%</div></div>
+      `;
+    }
+
+    function renderGantt(tasks) {
+      if (!tasks.length) {
+        elGantt.innerHTML = `<div class="empty-state">Нет задач под выбранные фильтры.</div>`;
+        return;
+      }
+
+      const allStarts = tasks.map(t => parseDate(t.start));
+      const allEnds = tasks.map(t => parseDate(t.end));
+      const minDate = new Date(Math.min(...allStarts));
+      const maxDate = new Date(Math.max(...allEnds));
+      const totalDays = diffDays(minDate, maxDate) + 1;
+
+      const days = [];
+      for (let i = 0; i < totalDays; i++) {
+        const d = new Date(minDate);
+        d.setDate(d.getDate() + i);
+        days.push(d);
+      }
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayOffset = diffDays(minDate, today);
+      const showToday = todayOffset >= 0 && todayOffset < totalDays;
+
+      let html = `
+        <div class="gantt-head">
+          <div class="gantt-label-cell">Задача</div>
+          <div class="gantt-timeline-head" style="grid-template-columns: repeat(${totalDays}, minmax(34px, 1fr));">
+            ${days.map(d => {
+              const wk = d.getDay() === 0 || d.getDay() === 6 ? "weekend" : "";
+              return `<div class="gantt-day-head ${wk}">${formatShort(d)}</div>`;
+            }).join("")}
+          </div>
+        </div>
+      `;
+
+      ROADMAP_DATA.milestones.forEach(ms => {
+        const msTasks = tasks.filter(t => t.milestone === ms.id);
+        if (!msTasks.length) return;
+
+        html += `<div class="gantt-milestone-row">${ms.title}</div>`;
+
+        msTasks.forEach(t => {
+          const s = parseDate(t.start);
+          const e = parseDate(t.end);
+          const startIdx = diffDays(minDate, s);
+          const spanDays = diffDays(s, e) + 1;
+          const leftPct = (startIdx / totalDays) * 100;
+          const widthPct = (spanDays / totalDays) * 100;
+          const color = STATUS_COLORS[t.status] || "var(--accent)";
+          const selected = t.id === selectedTaskId ? "selected" : "";
+
+          html += `
+            <div class="gantt-row ${selected}" data-id="${t.id}">
+              <div class="gantt-label-cell">
+                <span class="task-id">${t.id}</span>
+                <span class="task-name" title="${t.title}">${t.title}</span>
+              </div>
+              <div class="gantt-track" style="grid-template-columns: repeat(${totalDays}, minmax(34px, 1fr));">
+                ${days.map(d => {
+                  const wk = d.getDay() === 0 || d.getDay() === 6 ? "weekend" : "";
+                  return `<div class="gantt-grid-cell ${wk}"></div>`;
+                }).join("")}
+                ${showToday ? `<div class="today-line" style="left: ${(todayOffset / totalDays) * 100}%"></div>` : ""}
+                <div class="gantt-bar" style="left: ${leftPct}%; width: ${widthPct}%; background: ${color};" title="${t.title} (${t.progress}%)">
+                  <div class="gantt-bar-progress" style="width: ${t.progress}%"></div>
+                  <span class="gantt-bar-text">${t.progress}%</span>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+      });
+
+      elGantt.innerHTML = html;
+
+      elGantt.querySelectorAll(".gantt-row").forEach(row => {
+        row.addEventListener("click", () => selectTask(row.dataset.id));
+      });
+    }
+
+    function renderTable(tasks) {
+      if (!tasks.length) {
+        elTableBody.innerHTML = `<tr><td colspan="8" class="empty-state">Нет задач под выбранные фильтры.</td></tr>`;
+        return;
+      }
+
+      elTableBody.innerHTML = tasks.map(t => {
+        const color = STATUS_COLORS[t.status] || "var(--accent)";
+        const selected = t.id === selectedTaskId ? "selected" : "";
+        return `
+          <tr class="${selected}" data-id="${t.id}">
+            <td><span class="task-id">${t.id}</span></td>
+            <td>${t.milestone}</td>
+            <td><strong>${t.title}</strong></td>
+            <td>${t.role}</td>
+            <td>${t.start}</td>
+            <td>${t.end}</td>
+            <td><span class="badge" style="background: color-mix(in srgb, ${color} 18%, transparent); color: ${color};">${t.status}</span></td>
+            <td>
+              <div class="progress-wrap">
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: ${t.progress}%; background: ${color};"></div>
+                </div>
+                <span>${t.progress}%</span>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      elTableBody.querySelectorAll("tr[data-id]").forEach(row => {
+        row.addEventListener("click", () => selectTask(row.dataset.id));
+      });
+    }
+
+    function selectTask(id) {
+      selectedTaskId = id;
+      const task = ROADMAP_DATA.tasks.find(t => t.id === id);
+      if (!task) return;
+
+      const ms = ROADMAP_DATA.milestones.find(m => m.id === task.milestone);
+      const days = diffDays(parseDate(task.start), parseDate(task.end)) + 1;
+
+      document.getElementById("detailId").textContent = task.id;
+      document.getElementById("detailTitle").textContent = task.title;
+      document.getElementById("detailMilestone").textContent = ms ? ms.title : task.milestone;
+      document.getElementById("detailRole").textContent = task.role;
+      document.getElementById("detailDates").textContent = `${task.start} — ${task.end}`;
+      document.getElementById("detailDuration").textContent = `${days} дн.`;
+      document.getElementById("detailStatus").textContent = `${task.status} (${task.progress}%)`;
+      document.getElementById("detailDod").textContent = task.dod;
+
+      elDetails.classList.add("open");
+      renderAll();
+      elDetails.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function renderAll() {
+      const tasks = getFilteredTasks();
+      renderStats(tasks);
+      renderGantt(tasks);
+      renderTable(tasks);
+    }
+
+    document.querySelectorAll("#viewSwitcher button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#viewSwitcher button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const mode = btn.dataset.view;
+        document.getElementById("ganttPanel").classList.toggle("hidden", mode === "table");
+        document.getElementById("tablePanel").classList.toggle("hidden", mode === "gantt");
+      });
+    });
+
+    elThemeToggle.addEventListener("click", () => {
+      const root = document.documentElement;
+      const isDark = root.getAttribute("data-theme") === "dark";
+      root.setAttribute("data-theme", isDark ? "light" : "dark");
+      elThemeToggle.textContent = isDark ? "Тёмная тема" : "Светлая тема";
+    });
+
+    document.getElementById("closeDetails").addEventListener("click", () => {
+      selectedTaskId = null;
+      elDetails.classList.remove("open");
+      renderAll();
+    });
+
+    [elMilestone, elRole, elStatus].forEach(el => el.addEventListener("change", renderAll));
+    elSearch.addEventListener("input", renderAll);
+    elReset.addEventListener("click", () => {
+      elMilestone.value = "all";
+      elRole.value = "all";
+      elStatus.value = "all";
+      elSearch.value = "";
+      renderAll();
+    });
+
+    initFilters();
+    renderAll();
+  </script>
+</body>
+</html>
